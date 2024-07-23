@@ -1,30 +1,34 @@
 name: cicd-workflow with slack integration
+
 on:
   push:
     branches: [ "master" ]
+
 jobs:
   job1:
     runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
     steps:
-      - uses: actions/slack@v2
-        with: 
+      - name: Notify Slack - Start
+        uses: actions/slack@v2
+        with:
           status: starting
           channel: '#devlab6'
           message: Starting Docker build image...
         if: always()
-
-      - uses: actions/checkout@v3
       
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
       - name: Build Docker image
         run: docker build -t my-docker-repo .
-        
-      - name: Slack - GitHub Actions Slack integration
+
+      - name: Notify Slack - End
         uses: actions/slack@v2
-        with: 
+        with:
           channel: '#devlab6'
           status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
+          message: Docker build complete.
         if: always()
-
